@@ -143,21 +143,19 @@ class LogStash::Outputs::AmazonES < LogStash::Outputs::Base
   # near-real-time.
   config :idle_flush_time, :validate => :number, :default => 1
 
-  # The Elasticsearch action to perform. Valid actions are: `index`, `delete`.
-  #
-  # Use of this setting *REQUIRES* you also configure the `document_id` setting
-  # because `delete` actions all require a document id.
-  #
-  # What does each action do?
+  # The Elasticsearch action to perform. Valid actions are:
   #
   # - index: indexes a document (an event from Logstash).
-  # - delete: deletes a document by id
+  # - delete: deletes a document by id (An id is required for this action)
   # - create: indexes a document, fails if a document by that id already exists in the index.
-  # - update: updates a document by id
-  # following action is not supported by HTTP protocol
+  # - update: updates a document by id. Update has a special case where you can upsert -- update a
+  #   document if not already present. See the `upsert` option. NOTE: This does not work and is not supported
+  #   in Elasticsearch 1.x. Please upgrade to ES 2.x or greater to use this feature with Logstash!
+  # - A sprintf style string to change the action based on the content of the event. The value `%{[foo]}`
+  #   would use the foo field for the action
   #
-  # For more details on actions, check out the http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/docs-bulk.html[Elasticsearch bulk API documentation]
-  config :action, :validate => %w(index delete create update), :default => "index"
+  # For more details on actions, check out the http://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html[Elasticsearch bulk API documentation]
+  config :action, :validate => :string, :default => "index"
 
   # Username and password (only valid when protocol is HTTP; this setting works with HTTP or HTTPS auth)
   config :user, :validate => :string
